@@ -11,7 +11,7 @@ type GlobalErrorProperties = {
   readonly reset: () => void;
 };
 
-const GlobalError: React.FC<GlobalErrorProperties> = ({ error, reset }) => {
+const GlobalError = ({ error, reset }: GlobalErrorProperties) => {
   useEffect(() => {
     captureException(error);
   }, [error]);

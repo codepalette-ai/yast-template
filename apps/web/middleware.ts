@@ -1,18 +1,40 @@
+import { env } from "@/env";
 import { authMiddleware } from "@repo/auth/middleware";
+import { parseError } from "@repo/observability/error";
+import { secure } from "@repo/security";
 import { noseconeMiddleware, noseconeOptions } from "@repo/security/middleware";
-import type { NextMiddleware } from "next/server";
+import { type NextMiddleware, NextResponse } from "next/server";
+
+export const config = {
+  // matcher tells Next.js which routes to run the middleware on. This runs the
+  // middleware on all routes except for static assets and Posthog ingest
+  matcher: ["/((?!_next/static|_next/image|ingest|favicon.ico).*)"],
+};
 
 const securityHeaders = noseconeMiddleware(noseconeOptions);
 
-export default authMiddleware(() =>
-  securityHeaders()
-) as unknown as NextMiddleware;
+const middleware = authMiddleware(async (_auth, request) => {
+  if (!env.ARCJET_KEY) {
+    return securityHeaders();
+  }
 
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
-};
+  try {
+    await secure(
+      [
+        // See https://docs.arcjet.com/bot-protection/identifying-bots
+        "CATEGORY:SEARCH_ENGINE", // Allow search engines
+        "CATEGORY:PREVIEW", // Allow preview links to show OG images
+        "CATEGORY:MONITOR", // Allow uptime monitoring services
+      ],
+      request
+    );
+
+    return securityHeaders();
+  } catch (error) {
+    const message = parseError(error);
+
+    return NextResponse.json({ error: message }, { status: 403 });
+  }
+}) as unknown as NextMiddleware;
+
+export default middleware;
