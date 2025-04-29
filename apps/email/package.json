@@ -1,22 +1,25 @@
 {
-  "name": "@repo/seo",
+  "name": "email",
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "build": "email build",
+    "dev": "email dev --port 3003",
+    "export": "email export",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "lodash.merge": "^4.6.2",
-    "react": "^19.1.0",
-    "schema-dts": "^1.1.5"
+    "@react-email/components": "0.0.36",
+    "@repo/email": "workspace:*",
+    "react": "19.1.0",
+    "react-email": "4.0.7"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@types/lodash.merge": "^4.6.9",
     "@types/node": "22.15.3",
     "@types/react": "19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "next": "15.3.1"
+    "next": "15.3.1",
+    "typescript": "^5.8.3"
   }
 }

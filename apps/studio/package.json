@@ -1,15 +1,12 @@
 {
-  "name": "@repo/testing",
+  "name": "studio",
   "version": "0.0.0",
-  "private": true,
-  "main": "./index.js",
-  "type": "commonjs",
   "scripts": {
+    "dev": "prisma studio --schema ../../packages/database/prisma/schema.prisma --port 3005",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.4.1",
-    "vitest": "^3.1.2"
+    "prisma": "6.6.0"
   }
 }
