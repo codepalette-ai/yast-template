@@ -8,6 +8,6 @@ test("Sign In Page", () => {
     screen.getByRole("heading", {
       level: 1,
       name: "Welcome back",
-    })
+    }),
   ).toBeDefined();
 });

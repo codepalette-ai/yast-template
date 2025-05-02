@@ -198,7 +198,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               <div
                 className={cn(
                   "h-[36px] overflow-hidden transition-all [&>div]:w-full",
-                  sidebar.open ? "" : "-mx-1"
+                  sidebar.open ? "" : "-mx-1",
                 )}
               >
                 <OrganizationSwitcher

@@ -26,7 +26,7 @@ const middleware = authMiddleware(async (_auth, request) => {
         "CATEGORY:PREVIEW", // Allow preview links to show OG images
         "CATEGORY:MONITOR", // Allow uptime monitoring services
       ],
-      request
+      request,
     );
 
     return securityHeaders();
