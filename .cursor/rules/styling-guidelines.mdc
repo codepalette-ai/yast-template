@@ -1,0 +1,372 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Styling Guidelines
+
+## Core Technologies
+- **CSS Framework**: Tailwind CSS 4
+- **Component Library**: shadcn/ui
+- **Location**: All styling in `packages/design-system`
+
+## Design System Structure
+```
+packages/design-system/
+├── components/
+│   └── ui/         # shadcn components
+├── hooks/          # Styling-related hooks
+├── lib/            # Utilities
+├── providers/      # Theme providers
+└── styles/         # Global styles
+```
+
+## Tailwind Configuration
+
+```typescript
+// tailwind.config.ts
+import { type Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
+
+export default {
+  darkMode: ["class"],
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "../../../packages/design-system/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;
+```
+
+## Theme Provider
+
+```tsx
+// packages/design-system/providers/theme-provider.tsx
+"use client";
+
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes/dist/types";
+
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return (
+    <NextThemesProvider {...props}>
+      {children}
+    </NextThemesProvider>
+  );
+}
+```
+
+## Using Components
+
+```tsx
+// Example usage in a component
+import { Button } from "@/packages/design-system/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/packages/design-system/components/ui/card";
+
+export function ProfileCard({ user }) {
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>{user.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground">{user.email}</p>
+        <div className="mt-4">
+          <Button variant="outline">Edit Profile</Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Responsive Design
+
+```tsx
+// Responsive design example
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  {items.map(item => (
+    <Card key={item.id} className="h-full">
+      {/* Card content */}
+    </Card>
+  ))}
+</div>
+```
+
+## Dark Mode Support
+
+### 1. Theme Toggle Component
+
+```tsx
+// packages/design-system/components/ui/theme-toggle.tsx
+"use client";
+
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+import { Button } from "./button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+
+export function ThemeToggle() {
+  const { setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+```
+
+### 2. Conditional Styling for Dark Mode
+
+```tsx
+// Using with conditional dark mode styles
+<div className="bg-white dark:bg-slate-800 text-black dark:text-white">
+  Dark mode aware content
+</div>
+```
+
+## Custom Component Creation
+
+When creating new custom components, follow these patterns:
+
+### 1. Basic Pattern
+
+```tsx
+// packages/design-system/components/ui/custom-card.tsx
+import * as React from "react";
+import { cn } from "@/packages/design-system/lib/utils";
+
+interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "outline";
+}
+
+const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
+  ({ className, variant = "default", ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "rounded-lg p-4",
+          variant === "default" && "bg-card text-card-foreground shadow-sm",
+          variant === "outline" && "border border-border bg-transparent",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+CustomCard.displayName = "CustomCard";
+
+export { CustomCard };
+```
+
+### 2. Compound Component Pattern
+
+```tsx
+// packages/design-system/components/ui/metric.tsx
+import * as React from "react";
+import { cn } from "@/packages/design-system/lib/utils";
+
+interface MetricRootProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const MetricRoot = React.forwardRef<HTMLDivElement, MetricRootProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn("space-y-1", className)}
+        {...props}
+      />
+    );
+  }
+);
+MetricRoot.displayName = "Metric";
+
+interface MetricLabelProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const MetricLabel = React.forwardRef<HTMLParagraphElement, MetricLabelProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <p
+        ref={ref}
+        className={cn("text-sm font-medium text-muted-foreground", className)}
+        {...props}
+      />
+    );
+  }
+);
+MetricLabel.displayName = "MetricLabel";
+
+interface MetricValueProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const MetricValue = React.forwardRef<HTMLParagraphElement, MetricValueProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <p
+        ref={ref}
+        className={cn("text-2xl font-bold", className)}
+        {...props}
+      />
+    );
+  }
+);
+MetricValue.displayName = "MetricValue";
+
+export { MetricRoot, MetricLabel, MetricValue };
+export const Metric = {
+  Root: MetricRoot,
+  Label: MetricLabel,
+  Value: MetricValue,
+};
+```
+
+## Styling Best Practices
+
+1. **Keep Specificity Low**: Use Tailwind classes instead of custom CSS when possible
+2. **Mobile-First**: Always design for mobile first, then add responsive variants
+3. **Reuse Components**: Use shadcn components as building blocks
+4. **Theme Variables**: Use CSS variables for theming rather than hard-coded values
+5. **Accessibility**: Ensure sufficient color contrast and proper focus states
+6. **Dark Mode**: Always support both light and dark modes
+7. **Consistency**: Maintain consistent spacing, sizing and typography
+8. **Component Props**: Allow style customization via props and className
+9. **Animations**: Use subtle animations for better UX
+10. **Design Tokens**: Use the design system's tokens for colors, spacing, etc.
+
+## Animation Guidelines
+
+```tsx
+// Example of subtle animation
+<button
+  className="transition-all duration-200 hover:scale-105 active:scale-95"
+>
+  Click me
+</button>
+
+// Using keyframes for more complex animations
+<div className="animate-accordion-down">
+  {/* Animated content */}
+</div>
+```
+
+## Accessibility Guidelines
+
+1. **Color Contrast**: Maintain WCAG AA contrast ratio (4.5:1 for normal text)
+2. **Focus States**: Ensure visible focus indicators for keyboard navigation
+3. **Semantic HTML**: Use proper HTML elements for their intended purpose
+4. **ARIA Attributes**: Add ARIA attributes when standard HTML is insufficient
+5. **Screen Readers**: Test with screen readers for proper announcement
+6. **Keyboard Navigation**: Ensure interactive elements work with keyboard-only
+7. **Text Size**: Don't use font sizes smaller than 16px (1rem) for body text
+
+```tsx
+// Accessible button example
+<button
+  aria-label={label ? undefined : "Close menu"}
+  className="focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:outline-none"
+>
+  {label || <XIcon className="h-4 w-4" />}
+</button>
+```
+
+## Performance Considerations
+
+1. **Minimize DOM Elements**: Keep the DOM tree size reasonably small
+2. **Reduce Layout Shifts**: Use placeholders during loading
+3. **Optimize Images**: Use Next.js Image component with proper sizing
+4. **Code Splitting**: Split large components for better loading performance
+5. **Lazy Loading**: Use dynamic imports for non-critical components

@@ -1,0 +1,243 @@
+---
+description: When Server Actions needs to be implemented
+globs: 
+alwaysApply: false
+---
+# Server Actions Patterns
+
+## Overview
+Server Actions are Next.js 15 functions that run on the server but can be called from client components, providing a secure way to handle form submissions, data mutations, and other server-side operations.
+
+## Location
+All server actions should be placed in:
+```
+apps/web/actions/
+```
+
+Organize actions in domain-specific folders:
+```
+actions/
+├── users/
+│   ├── create-user.ts
+│   └── update-user.ts
+├── posts/
+│   ├── create-post.ts
+│   └── delete-post.ts
+└── auth/
+    └── reset-password.ts
+```
+
+## Basic Structure
+
+```typescript
+// apps/web/actions/users/create-user.ts
+"use server";
+
+import { z } from "zod";
+import { db } from "@/packages/database";
+import { revalidatePath } from "next/cache";
+
+// Define input validation schema
+const CreateUserSchema = z.object({
+  name: z.string().min(2).max(50),
+  email: z.string().email(),
+  role: z.enum(["USER", "ADMIN"]).default("USER"),
+});
+
+// Input and output types for better type safety
+type CreateUserInput = z.infer<typeof CreateUserSchema>;
+type CreateUserResult = { success: true; id: string } | { success: false; error: string };
+
+export async function createUser(input: CreateUserInput): Promise<CreateUserResult> {
+  try {
+    // Validate input
+    const validatedData = CreateUserSchema.parse(input);
+    
+    // Perform database operation
+    const user = await db.user.create({
+      data: validatedData,
+    });
+    
+    // Revalidate related pages
+    revalidatePath("/users");
+    
+    return { success: true, id: user.id };
+  } catch (error) {
+    console.error("Failed to create user:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Unknown error occurred" 
+    };
+  }
+}
+```
+
+## Form Handling
+
+```typescript
+// Server action for form submission
+// apps/web/actions/contact/submit-form.ts
+"use server";
+
+import { z } from "zod";
+import { sendEmail } from "@/packages/email";
+
+const ContactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Valid email is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+export async function submitContactForm(formData: FormData) {
+  // Get and validate form data
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const message = formData.get("message") as string;
+  
+  const result = ContactFormSchema.safeParse({ name, email, message });
+  
+  if (!result.success) {
+    return { success: false, errors: result.error.flatten().fieldErrors };
+  }
+  
+  try {
+    // Process the form data
+    await sendEmail({
+      to: "support@example.com",
+      subject: "New Contact Form Submission",
+      text: `From: ${name} (${email})\n\n${message}`,
+    });
+    
+    return { success: true };
+  } catch (error) {
+    return { 
+      success: false, 
+      errors: { form: ["Failed to send message. Please try again."] } 
+    };
+  }
+}
+```
+
+## Usage in Client Components
+
+```tsx
+// Using server actions in client components
+"use client";
+
+import { useTransition } from "react";
+import { updateUser } from "@/app/actions/users/update-user";
+
+export function ProfileForm({ user }) {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState(null);
+  
+  async function handleSubmit(formData) {
+    startTransition(async () => {
+      const result = await updateUser({
+        id: user.id,
+        name: formData.get("name"),
+        email: formData.get("email"),
+      });
+      
+      if (!result.success) {
+        setError(result.error);
+      }
+    });
+  }
+  
+  return (
+    <form action={handleSubmit}>
+      {error && <div className="error">{error}</div>}
+      <input name="name" defaultValue={user.name} />
+      <input name="email" defaultValue={user.email} />
+      <button disabled={isPending} type="submit">
+        {isPending ? "Saving..." : "Save Changes"}
+      </button>
+    </form>
+  );
+}
+```
+
+## Using with useOptimistic
+
+```tsx
+"use client";
+
+import { useOptimistic } from "react";
+import { addTodo } from "@/app/actions/todos/add-todo";
+
+export function TodoForm({ todos }) {
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
+    todos,
+    (state, newTodo) => [...state, { id: "temp-id", text: newTodo, completed: false }]
+  );
+  
+  async function handleSubmit(formData) {
+    const text = formData.get("text");
+    addOptimisticTodo(text);
+    formData.set("text", ""); // Clear input
+    await addTodo({ text });
+  }
+  
+  return (
+    <div>
+      <form action={handleSubmit}>
+        <input name="text" placeholder="New todo" />
+        <button type="submit">Add</button>
+      </form>
+      <ul>
+        {optimisticTodos.map(todo => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+## Error Handling Best Practices
+
+1. Always return structured responses with success/error indicators
+2. Use try/catch blocks for all database operations
+3. Validate inputs with Zod or similar libraries
+4. Log errors on the server for debugging
+5. Return user-friendly error messages
+
+## Security Considerations
+
+1. Always validate and sanitize all inputs
+2. Use Zod or similar validation libraries
+3. Never trust client-side data
+4. Implement rate limiting for public-facing actions
+5. Use proper authentication checks before data mutations
+
+```typescript
+// Example with authentication check
+"use server";
+
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/packages/database";
+
+export async function deletePost(postId: string) {
+  const { userId } = auth();
+  
+  if (!userId) {
+    return { success: false, error: "Unauthorized" };
+  }
+  
+  const post = await db.post.findUnique({ where: { id: postId } });
+  
+  if (!post) {
+    return { success: false, error: "Post not found" };
+  }
+  
+  if (post.authorId !== userId) {
+    return { success: false, error: "Not authorized to delete this post" };
+  }
+  
+  await db.post.delete({ where: { id: postId } });
+  
+  revalidatePath("/posts");
+  return { success: true };
+}
+```

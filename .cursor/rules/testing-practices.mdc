@@ -1,0 +1,247 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Testing Best Practices
+
+## Testing Philosophy
+This project follows the Test-Driven Development (TDD) approach:
+1. Write failing tests first
+2. Implement code to make tests pass
+3. Refactor while ensuring tests continue to pass
+
+## Testing Framework
+- **Primary**: Vitest
+- **Location**: Tests are located in `__tests__` directories
+
+## Component Testing
+
+### Testing Server Components
+```tsx
+// Example server component test
+// apps/web/components/__tests__/user-profile.test.tsx
+import { render, screen } from "@testing-library/react";
+import UserProfile from "../user-profile";
+import { vi } from "vitest";
+
+// Mock database
+vi.mock("@/packages/database", () => ({
+  db: {
+    user: {
+      findUnique: vi.fn().mockResolvedValue({
+        id: "1",
+        name: "Test User",
+        email: "test@example.com",
+      }),
+    },
+  },
+}));
+
+describe("UserProfile", () => {
+  it("displays user information correctly", async () => {
+    render(await UserProfile({ userId: "1" }));
+    expect(screen.getByText("Test User")).toBeInTheDocument();
+    expect(screen.getByText("test@example.com")).toBeInTheDocument();
+  });
+});
+```
+
+### Testing Client Components
+```tsx
+// Example client component test
+// apps/web/components/__tests__/counter-button.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import CounterButton from "../counter-button";
+import { expect, it, describe } from "vitest";
+
+describe("CounterButton", () => {
+  it("increments count when clicked", async () => {
+    render(<CounterButton />);
+    
+    const button = screen.getByRole("button", { name: /increment/i });
+    expect(screen.getByText("Count: 0")).toBeInTheDocument();
+    
+    fireEvent.click(button);
+    expect(screen.getByText("Count: 1")).toBeInTheDocument();
+    
+    fireEvent.click(button);
+    expect(screen.getByText("Count: 2")).toBeInTheDocument();
+  });
+});
+```
+
+## Testing Server Actions
+
+```typescript
+// Example server action test
+// apps/web/actions/__tests__/create-user.test.ts
+import { createUser } from "../users/create-user";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { revalidatePath } from "next/cache";
+
+// Mock dependencies
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
+vi.mock("@/packages/database", () => ({
+  db: {
+    user: {
+      create: vi.fn().mockResolvedValue({
+        id: "new-user-id",
+        name: "John Doe",
+        email: "john@example.com",
+        role: "USER",
+      }),
+    },
+  },
+}));
+
+describe("createUser", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("creates a user successfully", async () => {
+    const result = await createUser({
+      name: "John Doe",
+      email: "john@example.com",
+    });
+    
+    expect(result).toEqual({
+      success: true,
+      id: "new-user-id",
+    });
+    
+    expect(revalidatePath).toHaveBeenCalledWith("/users");
+  });
+  
+  it("returns error for invalid data", async () => {
+    // Mock database error
+    const mockDb = await import("@/packages/database");
+    mockDb.db.user.create.mockRejectedValueOnce(new Error("Email already exists"));
+    
+    const result = await createUser({
+      name: "John Doe",
+      email: "john@example.com",
+    });
+    
+    expect(result).toEqual({
+      success: false,
+      error: "Email already exists",
+    });
+  });
+});
+```
+
+## Testing Utilities
+
+```typescript
+// Example test utility
+// packages/testing/helpers.ts
+import { render } from "@testing-library/react";
+import { ThemeProvider } from "@/packages/design-system/providers";
+
+// Custom render function with providers
+export function renderWithProviders(ui: React.ReactElement) {
+  return render(
+    <ThemeProvider>
+      {ui}
+    </ThemeProvider>
+  );
+}
+```
+
+## Integration Testing
+
+```typescript
+// Example integration test
+// apps/web/app/__tests__/dashboard-page.test.tsx
+import { render, screen } from "@testing-library/react";
+import DashboardPage from "../dashboard/page";
+import { vi } from "vitest";
+
+// Mock authenticated user
+vi.mock("@clerk/nextjs", () => ({
+  auth: vi.fn().mockReturnValue({ userId: "user-123" }),
+  clerkClient: {
+    users: {
+      getUser: vi.fn().mockResolvedValue({
+        id: "user-123",
+        firstName: "John",
+        lastName: "Doe",
+      }),
+    },
+  },
+}));
+
+// Mock database response
+vi.mock("@/packages/database", () => ({
+  db: {
+    project: {
+      findMany: vi.fn().mockResolvedValue([
+        { id: "1", title: "Project 1", description: "Description 1" },
+        { id: "2", title: "Project 2", description: "Description 2" },
+      ]),
+    },
+  },
+}));
+
+describe("DashboardPage", () => {
+  it("displays user's projects", async () => {
+    render(await DashboardPage());
+    
+    expect(screen.getByText("Welcome, John")).toBeInTheDocument();
+    expect(screen.getByText("Project 1")).toBeInTheDocument();
+    expect(screen.getByText("Project 2")).toBeInTheDocument();
+  });
+});
+```
+
+## End-to-End Testing
+
+For critical user flows, implement end-to-end tests using Playwright:
+
+```typescript
+// Example e2e test
+// e2e/authentication.spec.ts
+import { test, expect } from "@playwright/test";
+
+test("user can sign up and log in", async ({ page }) => {
+  // Sign up
+  await page.goto("/sign-up");
+  await page.fill('input[name="email"]', "test@example.com");
+  await page.fill('input[name="password"]', "Password123!");
+  await page.click('button[type="submit"]');
+  
+  // Verify redirect to dashboard after signup
+  await expect(page).toHaveURL("/dashboard");
+  
+  // Log out
+  await page.click('[aria-label="Log out"]');
+  
+  // Log in
+  await page.goto("/sign-in");
+  await page.fill('input[name="email"]', "test@example.com");
+  await page.fill('input[name="password"]', "Password123!");
+  await page.click('button[type="submit"]');
+  
+  // Verify login success
+  await expect(page).toHaveURL("/dashboard");
+  await expect(page.locator("h1")).toContainText("Dashboard");
+});
+```
+
+## Testing Guidelines
+
+1. **Coverage Target**: Aim for >80% test coverage
+2. **Test Organization**: Keep tests close to implementation
+3. **Isolation**: Ensure tests don't depend on each other
+4. **Mocking**: Mock external dependencies and APIs
+5. **Integration**: Test key user flows across components
+6. **Performance**: Include performance tests for critical paths
+7. **Accessibility**: Test accessibility compliance
+8. **Documentation**: Document complex test setups
+9. **CI Pipeline**: Ensure all tests run on every PR
+10. **Test Maintenance**: Keep tests updated as requirements change

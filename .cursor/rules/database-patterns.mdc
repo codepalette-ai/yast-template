@@ -1,0 +1,315 @@
+---
+description: Whenever Prisma or db or database is mentioned or needs changed to the database or needs to understand the schema when it's used in server actions
+globs: 
+alwaysApply: false
+---
+# Database Patterns and Best Practices
+
+## Database Structure
+- **ORM**: Prisma
+- **Location**: All database code in `packages/database`
+
+```
+packages/database/
+├── prisma/
+│   ├── schema.prisma    # Main schema file
+│   ├── migrations/      # Database migrations
+│   └── seed.ts          # Seed data for development
+├── generated/           # Prisma generated types and client
+└── lib/                 # Database utilities
+```
+
+## Schema Design Example
+
+```prisma
+// Example schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  role          Role      @enum("user", "admin")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+}
+```
+
+## Using the Client
+
+```typescript
+// Example database client usage
+import { database } from "@/packages/database";
+
+// In a server component or server action
+async function getUser(userId: string) {
+  try {
+    const user = await database.user.findUnique({
+      where: { id: userId },
+      include: { profile: true },
+    });
+    
+    return user;
+  } catch (error) {
+    console.error("Failed to get user:", error);
+    return null;
+  }
+}
+```
+
+## Database Operations Best Practices
+
+### 1. Use Transactions for Related Operations
+
+```typescript
+async function createUserWithProfile(data) {
+  return await db.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+      },
+    });
+    
+    const profile = await tx.profile.create({
+      data: {
+        bio: data.bio,
+        userId: user.id,
+      },
+    });
+    
+    return { user, profile };
+  });
+}
+```
+
+### 2. Optimize Queries with Select
+
+```typescript
+// Only select needed fields
+const users = await db.user.findMany({
+  select: {
+    id: true,
+    name: true,
+    email: true,
+  },
+});
+```
+
+### 3. Use Proper Indexes
+
+```prisma
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  published Boolean  @default(false)
+  authorId  String
+
+  @@index([authorId])
+  @@index([published, authorId])
+}
+```
+
+### 4. Implement Pagination
+
+```typescript
+async function getPaginatedPosts(page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [posts, total] = await db.$transaction([
+    db.post.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: { author: { select: { name: true } } },
+    }),
+    db.post.count(),
+  ]);
+  
+  return {
+    posts,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+```
+
+### 5. Implement Soft Deletes When Needed
+
+```prisma
+model SensitiveDocument {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  deletedAt DateTime?  // null means not deleted
+
+  // When querying, filter where deletedAt is null
+}
+```
+
+```typescript
+// "Delete" a document (soft delete)
+await db.sensitiveDocument.update({
+  where: { id: documentId },
+  data: { deletedAt: new Date() },
+});
+
+// Query only non-deleted documents
+const documents = await db.sensitiveDocument.findMany({
+  where: { deletedAt: null },
+});
+```
+
+## Schema Migration Practices
+
+### 1. Create Migrations
+
+```bash
+# Generate a migration without applying it
+pnpm db:migrate dev --name added_user_role
+
+# Apply pending migrations to the database
+pnpm db:migrate:deploy
+```
+
+### 2. Safe Schema Changes
+
+- Add nullable columns when extending models
+- Use default values when possible
+- For breaking changes, use multiple migrations:
+  1. Add new nullable column
+  2. Migrate data from old to new column
+  3. Make new column required
+  4. Remove old column
+
+## Error Handling
+
+```typescript
+async function createUser(data) {
+  try {
+    const user = await db.user.create({
+      data,
+    });
+    return { success: true, user };
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return { 
+        success: false, 
+        error: 'A user with this email already exists.' 
+      };
+    }
+    
+    console.error("Database error:", error);
+    return { 
+      success: false, 
+      error: 'An unexpected error occurred.' 
+    };
+  }
+}
+```
+
+## Performance Optimization
+
+1. **Batching**: Use `createMany` for bulk operations
+   ```typescript
+   await db.post.createMany({
+     data: [
+       { title: 'Post 1', authorId: 'user1' },
+       { title: 'Post 2', authorId: 'user1' },
+     ],
+   });
+   ```
+
+2. **Middleware**: Use Prisma middleware for cross-cutting concerns
+   ```typescript
+   // packages/database/lib/middleware.ts
+   import { db } from './client';
+   
+   db.$use(async (params, next) => {
+     const before = Date.now();
+     const result = await next(params);
+     const after = Date.now();
+     
+     console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
+     
+     return result;
+   });
+   ```
+
+## Testing with the Database
+
+### 1. Test Database Setup
+
+```typescript
+// packages/testing/setup-test-db.ts
+import { execSync } from 'child_process';
+import { db } from '@/packages/database';
+
+export async function setupTestDb() {
+  // Use a test-specific database URL
+  process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/test_db';
+  
+  // Reset the database
+  execSync('pnpm prisma migrate reset --force', { stdio: 'inherit' });
+  
+  // Seed with test data
+  await seedTestData();
+}
+
+async function seedTestData() {
+  await db.user.create({
+    data: {
+      id: 'test-user-id',
+      email: 'test@example.com',
+      name: 'Test User',
+    },
+  });
+  
+  // Add other test data as needed
+}
+```
+
+### 2. Using in Tests
+
+```typescript
+// Example test with database
+import { setupTestDb } from '@/packages/testing/setup-test-db';
+import { db } from '@/packages/database';
+import { beforeAll, afterAll, describe, it, expect } from 'vitest';
+
+describe('User operations', () => {
+  beforeAll(async () => {
+    await setupTestDb();
+  });
+  
+  afterAll(async () => {
+    await db.$disconnect();
+  });
+  
+  it('creates a new user', async () => {
+    const user = await db.user.create({
+      data: {
+        email: 'newuser@example.com',
+        name: 'New User',
+      },
+    });
+    
+    expect(user).toHaveProperty('id');
+    expect(user.email).toBe('newuser@example.com');
+  });
+});
+```

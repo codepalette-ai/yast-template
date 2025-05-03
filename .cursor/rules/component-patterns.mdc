@@ -1,0 +1,195 @@
+---
+description: Helps how to create new components or update existing components
+globs: 
+alwaysApply: false
+---
+# Component Development Patterns
+
+## Component Types
+
+### Server Components (Default Choice)
+```tsx
+// apps/web/components/example-server-component.tsx
+import { database } from "@/packages/database";
+
+export default async function ExampleServerComponent() {
+  // Can directly use async/await
+  const data = await database.example.findMany();
+  
+  return (
+    <div>
+      {data.map((item) => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Client Components (For Interactivity)
+```tsx
+// apps/web/components/example-client-component.tsx
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/packages/design-system/components/ui/button";
+
+export default function ExampleClientComponent() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <Button onClick={() => setCount(count + 1)}>Increment</Button>
+    </div>
+  );
+}
+```
+
+## File Naming Conventions
+- Use kebab-case for all component files
+- Group related components in directories
+- If the component logic is generic, save them to apps/web/components. If it's specific to a page and may not be reused, then save them to apps/web/<folder>/<folder>/components where the page.tsx file exists.
+- Use index.ts for re-exporting components
+- Example structure:
+  ```
+  components/
+  ├── user/
+  │   ├── user-card.tsx
+  │   ├── user-form.tsx
+  │   └── index.ts
+  └── dashboard/
+      ├── dashboard-stats.tsx
+      └── index.ts
+  ```
+
+## Component Composition
+- Prefer composition over inheritance
+- Keep components focused and single-responsibility
+- Extract reusable logic to custom hooks
+- Example:
+  ```tsx
+  // Composition example
+  function UserProfile({ userId }) {
+    return (
+      <Card>
+        <UserAvatar userId={userId} />
+        <UserDetails userId={userId} />
+        <UserActions userId={userId} />
+      </Card>
+    );
+  }
+  ```
+
+## Loading States
+Always implement loading states for async operations:
+
+```tsx
+// Loading state example
+export default function UserList() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <UserListContent />
+    </Suspense>
+  );
+}
+
+async function UserListContent() {
+  const users = await getUsers();
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Error Handling
+Implement error boundaries for component failures:
+
+```tsx
+// Error handling example
+export default function UserData() {
+  return (
+    <ErrorBoundary fallback={<ErrorDisplay />}>
+      <UserContent />
+    </ErrorBoundary>
+  );
+}
+```
+
+## Optimistic Updates
+Use React 19's useOptimistic for better UX:
+
+```tsx
+"use client";
+
+import { useOptimistic } from "react";
+import { updateUser } from "@/app/actions/user-actions";
+
+export function UserForm({ user }) {
+  const [optimisticUser, updateOptimisticUser] = useOptimistic(
+    user,
+    (state, newName) => ({ ...state, name: newName })
+  );
+
+  async function handleSubmit(formData) {
+    const name = formData.get("name");
+    updateOptimisticUser(name);
+    await updateUser(user.id, { name });
+  }
+
+  return (
+    <form action={handleSubmit}>
+      <input name="name" defaultValue={optimisticUser.name} />
+      <button type="submit">Update</button>
+    </form>
+  );
+}
+```
+
+## Server Actions Integration
+```tsx
+// Server Actions with Client Components
+"use client";
+
+import { useTransition } from "react";
+import { deleteUser } from "@/app/actions/user-actions";
+
+export function DeleteButton({ userId }) {
+  const [isPending, startTransition] = useTransition();
+  
+  return (
+    <button 
+      disabled={isPending}
+      onClick={() => startTransition(() => deleteUser(userId))}
+    >
+      {isPending ? "Deleting..." : "Delete User"}
+    </button>
+  );
+}
+```
+
+## Accessibility Best Practices
+- Use semantic HTML elements
+- Implement ARIA attributes when needed
+- Ensure keyboard navigation works
+- Support screen readers
+- Maintain sufficient color contrast
+
+## Component Testing
+```tsx
+// Example component test
+import { render, screen } from "@testing-library/react";
+import { expect, it, describe } from "vitest";
+import UserCard from "./user-card";
+
+describe("UserCard", () => {
+  it("renders user information correctly", () => {
+    render(<UserCard user={{ id: 1, name: "Test User" }} />);
+    expect(screen.getByText("Test User")).toBeInTheDocument();
+  });
+});
+```
