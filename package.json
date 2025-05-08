@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "pnpm run db:init && turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "analyze": "turbo run analyze",
@@ -11,11 +11,11 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker && pnpm install",
-    "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design-system"
+    "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design-system && pnpm run format"
   },
   "devDependencies": {
     "prettier": "^3.5.3",
-    "turbo": "^2.5.2",
+    "turbo": "^2.5.3",
     "typescript": "5.8.3"
   },
   "packageManager": "pnpm@10.10.0",
