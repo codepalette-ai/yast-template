@@ -13,6 +13,10 @@
         "DEFAULT_SUBTASKS": "5",
         "DEFAULT_PRIORITY": "medium"
       }
+    },
+    "browser-tools": {
+      "command": "npx",
+      "args": ["-y", "--package=browser-tools-mcp", "browser-tools-mcp"]
     }
   }
 }
