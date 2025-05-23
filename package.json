@@ -8,6 +8,7 @@
     "test": "turbo run test",
     "analyze": "turbo run analyze",
     "db:init": "cd packages/database && npx prisma format && npx prisma generate",
+    "db:migrate": "cd packages/database && npx prisma migrate dev",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker && pnpm install",
