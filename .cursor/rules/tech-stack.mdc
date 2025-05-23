@@ -45,7 +45,6 @@ packages/
 ├── email/ - React Email and Resend
 ├── next-config/ - Shared Next.js configurations
 ├── observability/ - Better Stack monitoring
-├── payments/ - Stripe payment integration
 ├── rate-limit/ - Rate limiting implementation
 ├── security/ - Arcjet security features
 ├── seo/ - Shared metadata components
