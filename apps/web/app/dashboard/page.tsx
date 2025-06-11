@@ -1,9 +1,9 @@
-import { auth } from "@repo/auth/server";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { auth } from '@repo/auth/server';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
-const title = "Acme Inc";
-const description = "My application.";
+const title = 'Acme Inc';
+const description = 'My application.';
 
 export const metadata: Metadata = {
   title,

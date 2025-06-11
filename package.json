@@ -4,19 +4,20 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "pnpm run db:init && turbo run dev",
-    "lint": "turbo run lint",
+    "lint": "ultracite lint",
+    "format": "ultracite format",
     "test": "turbo run test",
     "analyze": "turbo run analyze",
     "install:web": "cd apps/web && pnpm install",
     "db:init": "cd packages/database && npx prisma format && npx prisma generate --no-engine",
     "db:migrate": "cd packages/database && npx prisma migrate dev",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker && pnpm install",
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design-system && pnpm run format"
   },
   "devDependencies": {
-    "prettier": "^3.5.3",
+    "@biomejs/biome": "1.9.4",
+    "ultracite": "4.2.10",
     "turbo": "^2.5.4",
     "typescript": "5.8.3"
   },

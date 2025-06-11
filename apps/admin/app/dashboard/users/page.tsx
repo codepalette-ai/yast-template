@@ -1,8 +1,8 @@
-import { getUsers, GetUsersParams } from "@/actions/user.actions";
-import { UsersTable } from "@/components/users-table";
-import { Users, UserCheck } from "lucide-react";
-import { Badge } from "@repo/design-system/components/ui/badge";
-import { Header } from "@/components/header";
+import { type GetUsersParams, getUsers } from '@/actions/user.actions';
+import { Header } from '@/components/header';
+import { UsersTable } from '@/components/users-table';
+import { Badge } from '@repo/design-system/components/ui/badge';
+import { UserCheck, Users } from 'lucide-react';
 
 interface UsersPageProps {
   searchParams: Promise<{
@@ -20,23 +20,23 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const params: GetUsersParams = {
     query: resolvedSearchParams.query,
     offset: resolvedSearchParams.offset
-      ? parseInt(resolvedSearchParams.offset, 10)
+      ? Number.parseInt(resolvedSearchParams.offset, 10)
       : 0,
     limit: resolvedSearchParams.limit
-      ? parseInt(resolvedSearchParams.limit, 10)
+      ? Number.parseInt(resolvedSearchParams.limit, 10)
       : 10,
     orderBy:
-      (resolvedSearchParams.orderBy as GetUsersParams["orderBy"]) ||
-      "-created_at",
+      (resolvedSearchParams.orderBy as GetUsersParams['orderBy']) ||
+      '-created_at',
   };
 
   const { data, error } = await getUsers(params);
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-destructive">
+          <h2 className="font-semibold text-destructive text-lg">
             Error loading users
           </h2>
           <p className="text-muted-foreground">{error.message}</p>
@@ -47,7 +47,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
 
   return (
     <div>
-      <Header pages={["Dashboard", "Users"]} page="Users"></Header>
+      <Header pages={['Dashboard', 'Users']} page="Users" />
       <div className="flex-1 space-y-8 p-8 pt-6">
         {/* Page Header */}
         <div className="flex items-center justify-between space-y-2">
@@ -55,7 +55,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
             <div className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+                <h1 className="font-bold text-3xl tracking-tight">Users</h1>
                 <p className="text-muted-foreground">
                   Manage and monitor user accounts across your platform
                 </p>

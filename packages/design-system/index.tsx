@@ -1,10 +1,10 @@
-import { AnalyticsProvider } from "@repo/analytics";
-import { AuthProvider } from "@repo/auth/provider";
-import type { ThemeProviderProps } from "next-themes";
-import { Toaster } from "./components/ui/sonner";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { ThemeProvider } from "./providers/theme";
-import { CookieConsent } from "@repo/cookie";
+import { AnalyticsProvider } from '@repo/analytics';
+import { AuthProvider } from '@repo/auth/provider';
+import { CookieConsent } from '@repo/cookie';
+import type { ThemeProviderProps } from 'next-themes';
+import { Toaster } from './components/ui/sonner';
+import { TooltipProvider } from './components/ui/tooltip';
+import { ThemeProvider } from './providers/theme';
 
 type DesignSystemProviderProperties = ThemeProviderProps & {
   privacyUrl?: string;

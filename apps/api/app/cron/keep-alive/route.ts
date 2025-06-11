@@ -1,3 +1,4 @@
-export const GET = async () => {
-  return new Response("OK", { status: 200 });
+'use server';
+export const GET = () => {
+  return new Response('OK', { status: 200 });
 };

@@ -1,12 +1,12 @@
-import { ModeToggle } from "@repo/design-system/components/mode-toggle";
-import { CommandIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { ModeToggle } from '@repo/design-system/components/mode-toggle';
+import { CommandIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 type AuthLayoutProps = {
   readonly children: ReactNode;
 };
 
-export default async function AuthLayout({ children }: AuthLayoutProps) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="container relative grid h-dvh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">

@@ -1,16 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useTransition, useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { User } from "@repo/auth/server";
+import { getUsers } from '@/actions/user.actions';
+import type { GetUsersParams, User as UserType } from '@/types';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/design-system/components/ui/table";
+  Avatar,
+  AvatarFallback,
+} from '@repo/design-system/components/ui/avatar';
+import { Badge } from '@repo/design-system/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@repo/design-system/components/ui/card';
+import { Input } from '@repo/design-system/components/ui/input';
 import {
   Pagination,
   PaginationContent,
@@ -18,30 +21,25 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@repo/design-system/components/ui/pagination";
-import { Input } from "@repo/design-system/components/ui/input";
+} from '@repo/design-system/components/ui/pagination';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/design-system/components/ui/select";
-import { Badge } from "@repo/design-system/components/ui/badge";
+} from '@repo/design-system/components/ui/select';
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/design-system/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Search, Filter, Mail, Phone, Calendar } from "lucide-react";
-import { getUsers } from "@/actions/user.actions";
-import { type GetUsersParams, type User as UserType } from "@/types";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@repo/design-system/components/ui/table';
+import { Filter, Mail, Phone, Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 interface UsersTableProps {
   initialUsers: UserType[];
@@ -77,9 +75,9 @@ export function UsersTable({
 
   const [users, setUsers] = useState<UserType[]>(initialUsers);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
-  const [searchQuery, setSearchQuery] = useState(initialParams.query || "");
+  const [searchQuery, setSearchQuery] = useState(initialParams.query || '');
   const [orderBy, setOrderBy] = useState(
-    initialParams.orderBy || "-created_at",
+    initialParams.orderBy || '-created_at'
   );
   const [limit, setLimit] = useState(initialParams.limit || 10);
   const [offset, setOffset] = useState(initialParams.offset || 0);
@@ -90,7 +88,7 @@ export function UsersTable({
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.ceil(totalCount / limit);
 
-  const updateUsers = useCallback(async (params: GetUsersParams) => {
+  const updateUsers = useCallback((params: GetUsersParams) => {
     startTransition(async () => {
       const result = await getUsers(params);
       if (result.success) {
@@ -103,21 +101,30 @@ export function UsersTable({
   const updateURL = useCallback(
     (params: GetUsersParams) => {
       const url = new URL(window.location.href);
-      if (params.query) url.searchParams.set("query", params.query);
-      else url.searchParams.delete("query");
-      if (params.offset)
-        url.searchParams.set("offset", params.offset.toString());
-      else url.searchParams.delete("offset");
-      if (params.limit && params.limit !== 10)
-        url.searchParams.set("limit", params.limit.toString());
-      else url.searchParams.delete("limit");
-      if (params.orderBy && params.orderBy !== "-created_at")
-        url.searchParams.set("orderBy", params.orderBy);
-      else url.searchParams.delete("orderBy");
+      if (params.query) {
+        url.searchParams.set('query', params.query);
+      } else {
+        url.searchParams.delete('query');
+      }
+      if (params.offset) {
+        url.searchParams.set('offset', params.offset.toString());
+      } else {
+        url.searchParams.delete('offset');
+      }
+      if (params.limit && params.limit !== 10) {
+        url.searchParams.set('limit', params.limit.toString());
+      } else {
+        url.searchParams.delete('limit');
+      }
+      if (params.orderBy && params.orderBy !== '-created_at') {
+        url.searchParams.set('orderBy', params.orderBy);
+      } else {
+        url.searchParams.delete('orderBy');
+      }
 
       router.replace(url.pathname + url.search, { scroll: false });
     },
-    [router],
+    [router]
   );
 
   // Effect to handle debounced search
@@ -129,7 +136,7 @@ export function UsersTable({
     }
 
     // Only search if query is empty or has 3+ characters
-    if (debouncedSearchQuery === "" || debouncedSearchQuery.length >= 3) {
+    if (debouncedSearchQuery === '' || debouncedSearchQuery.length >= 3) {
       setOffset(0); // Reset to first page
       const params = {
         query: debouncedSearchQuery || undefined,
@@ -140,15 +147,15 @@ export function UsersTable({
       updateUsers(params);
       updateURL(params);
     }
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, updateURL, updateUsers, limit, orderBy]);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
   const handleOrderChange = (value: string) => {
-    const newOrderBy = value as GetUsersParams["orderBy"];
-    setOrderBy(newOrderBy || "-created_at");
+    const newOrderBy = value as GetUsersParams['orderBy'];
+    setOrderBy(newOrderBy || '-created_at');
     setOffset(0); // Reset to first page
     const params = {
       query: debouncedSearchQuery || undefined,
@@ -188,25 +195,25 @@ export function UsersTable({
 
   const formatDate = (timestamp: number | string) => {
     const date =
-      typeof timestamp === "string" ? new Date(timestamp) : new Date(timestamp);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
   const getUserInitials = (user: UserType) => {
     // For UserType, we don't have firstName/lastName, so we'll use email or username
     if (user.emailAddress) {
-      return user.emailAddress[0]?.toUpperCase() || "U";
+      return user.emailAddress[0]?.toUpperCase() || 'U';
     }
     if (user.username) {
-      return user.username[0]?.toUpperCase() || "U";
+      return user.username[0]?.toUpperCase() || 'U';
     }
-    return "U";
+    return 'U';
   };
 
   const getUserDisplayName = (user: UserType) => {
@@ -214,9 +221,9 @@ export function UsersTable({
       return user.username;
     }
     if (user.emailAddress) {
-      return user.emailAddress.split("@")[0];
+      return user.emailAddress.split('@')[0];
     }
-    return "Unnamed User";
+    return 'Unnamed User';
   };
 
   return (
@@ -230,11 +237,11 @@ export function UsersTable({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-muted-foreground" />
                 <Input
                   placeholder="Search users (min 3 characters)..."
                   value={searchQuery}
@@ -242,7 +249,7 @@ export function UsersTable({
                   className="pl-10"
                 />
                 {searchQuery.length > 0 && searchQuery.length < 3 && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-muted-foreground text-xs">
                     Enter at least 3 characters to search
                   </p>
                 )}
@@ -295,8 +302,8 @@ export function UsersTable({
         <CardContent className="p-0">
           <div className="relative">
             {isPending && (
-              <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
+                <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
               </div>
             )}
             <Table>
@@ -313,11 +320,11 @@ export function UsersTable({
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center py-8 text-muted-foreground"
+                      className="py-8 text-center text-muted-foreground"
                     >
                       {searchQuery.length > 0 && searchQuery.length < 3
-                        ? "Enter at least 3 characters to search"
-                        : "No users found"}
+                        ? 'Enter at least 3 characters to search'
+                        : 'No users found'}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -335,7 +342,7 @@ export function UsersTable({
                               {getUserDisplayName(user)}
                             </div>
                             {user.username && (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-muted-foreground text-sm">
                                 @{user.username}
                               </div>
                             )}
@@ -367,7 +374,7 @@ export function UsersTable({
                             {formatDate(user.lastActiveAt)}
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-muted-foreground text-sm">
                             Never
                           </span>
                         )}
@@ -384,8 +391,8 @@ export function UsersTable({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {offset + 1} to {Math.min(offset + limit, totalCount)} of{" "}
+          <div className="text-muted-foreground text-sm">
+            Showing {offset + 1} to {Math.min(offset + limit, totalCount)} of{' '}
             {totalCount} users
           </div>
           <Pagination>
@@ -404,7 +411,7 @@ export function UsersTable({
 
               {/* Page numbers */}
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
+                let pageNum: number;
                 if (totalPages <= 5) {
                   pageNum = i + 1;
                 } else if (currentPage <= 3) {

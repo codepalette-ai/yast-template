@@ -1,8 +1,8 @@
-import { env } from "@/env";
-import "./global.css";
-import { DesignSystemProvider } from "@repo/design-system";
-import { fonts } from "@repo/design-system/lib/fonts";
-import type { ReactNode } from "react";
+import { env } from '@/env';
+import './global.css';
+import { DesignSystemProvider } from '@repo/design-system';
+import { fonts } from '@repo/design-system/lib/fonts';
+import type { ReactNode } from 'react';
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -10,7 +10,7 @@ type RootLayoutProperties = {
 
 export default function RootLayout({
   children,
-}: RootLayoutProperties): React.ReactNode {
+}: RootLayoutProperties): ReactNode {
   return (
     <html lang="en" className={fonts} suppressHydrationWarning>
       {/* <head>
@@ -21,8 +21,8 @@ export default function RootLayout({
       </head> */}
       <body>
         <DesignSystemProvider
-          privacyUrl={new URL("/privacy", env.NEXT_PUBLIC_WEB_URL).toString()}
-          termsUrl={new URL("/terms", env.NEXT_PUBLIC_WEB_URL).toString()}
+          privacyUrl={new URL('/privacy', env.NEXT_PUBLIC_WEB_URL).toString()}
+          termsUrl={new URL('/terms', env.NEXT_PUBLIC_WEB_URL).toString()}
           helpUrl={env.NEXT_PUBLIC_WEB_URL}
         >
           {children}

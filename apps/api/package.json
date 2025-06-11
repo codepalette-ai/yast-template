@@ -24,10 +24,9 @@
     "require-in-the-middle": "^7.5.2",
     "svix": "^1.67.0",
     "vitest": "^3.2.3",
-    "zod": "^3.25.59"
+    "zod": "^3.25.60"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "24.0.0",
     "@types/react": "19.1.7",

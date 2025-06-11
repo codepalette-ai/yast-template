@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { UserButton } from "@repo/auth/client";
-import { ModeToggle } from "@repo/design-system/components/mode-toggle";
+import { UserButton } from '@repo/auth/client';
+import { ModeToggle } from '@repo/design-system/components/mode-toggle';
 import {
   Sidebar,
   SidebarContent,
@@ -13,11 +13,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@repo/design-system/components/ui/sidebar";
-import { cn } from "@repo/design-system/lib/utils";
-import { UsersIcon } from "lucide-react";
-import Link from "next/link";
-import type { ReactNode } from "react";
+} from '@repo/design-system/components/ui/sidebar';
+import { UsersIcon } from 'lucide-react';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
@@ -25,14 +24,14 @@ type GlobalSidebarProperties = {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   navMain: [
     {
-      title: "Users",
-      url: "/dashboard/users",
+      title: 'Users',
+      url: '/dashboard/users',
       icon: UsersIcon,
       isActive: true,
     },
@@ -52,12 +51,12 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
             <SidebarMenuItem>
               <div className="flex items-center gap-2 px-2 py-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <span className="text-sm font-bold">A</span>
+                  <span className="font-bold text-sm">A</span>
                 </div>
                 {sidebar.open && (
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold">Admin Panel</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-sm">Admin Panel</span>
+                    <span className="text-muted-foreground text-xs">
                       Dashboard
                     </span>
                   </div>
@@ -89,9 +88,9 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                 showName
                 appearance={{
                   elements: {
-                    rootBox: "flex overflow-hidden w-full",
-                    userButtonBox: "flex-row-reverse",
-                    userButtonOuterIdentifier: "truncate pl-0",
+                    rootBox: 'flex overflow-hidden w-full',
+                    userButtonBox: 'flex-row-reverse',
+                    userButtonOuterIdentifier: 'truncate pl-0',
                   },
                 }}
               />

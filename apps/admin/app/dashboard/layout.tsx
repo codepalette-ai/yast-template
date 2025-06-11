@@ -1,10 +1,10 @@
-import { env } from "@/env";
-import { auth, currentUser } from "@repo/auth/server";
-import { SidebarProvider } from "@repo/design-system/components/ui/sidebar";
-import { secure } from "@repo/security";
-import type { ReactNode } from "react";
-import { PostHogIdentifier } from "../../components/posthog-identifier";
-import { GlobalSidebar } from "../../components/sidebar";
+import { env } from '@/env';
+import { auth, currentUser } from '@repo/auth/server';
+import { SidebarProvider } from '@repo/design-system/components/ui/sidebar';
+import { secure } from '@repo/security';
+import type { ReactNode } from 'react';
+import { PostHogIdentifier } from '../../components/posthog-identifier';
+import { GlobalSidebar } from '../../components/sidebar';
 
 type AppLayoutProperties = {
   readonly children: ReactNode;
@@ -12,7 +12,7 @@ type AppLayoutProperties = {
 
 export default async function AppLayout({ children }: AppLayoutProperties) {
   if (env.ARCJET_KEY) {
-    await secure(["CATEGORY:PREVIEW"]);
+    await secure(['CATEGORY:PREVIEW']);
   }
 
   const user = await currentUser();

@@ -1,15 +1,15 @@
-"use server";
-import { errorResponse, Result, successResponse, tryCatch } from "@/utils";
-import { createClerkClient } from "@repo/auth/server";
-import { type User } from "@repo/auth/server";
-import { env } from "@/env";
-import { type GetUsersParams, User as UserType } from "@/types";
+'use server';
+import { env } from '@/env';
+import type { GetUsersParams, User as UserType } from '@/types';
+import { type Result, errorResponse, successResponse, tryCatch } from '@/utils';
+import { createClerkClient } from '@repo/auth/server';
+import type { User } from '@repo/auth/server';
 
 // Re-export GetUsersParams for use in other files
-export type { GetUsersParams } from "@/types";
+export type { GetUsersParams } from '@/types';
 
 export async function getUsers(
-  params: GetUsersParams = {},
+  params: GetUsersParams = {}
 ): Promise<Result<{ users: UserType[]; totalCount: number }>> {
   const clerk = createClerkClient({
     secretKey: env.CLERK_USER_SECRET_KEY,
@@ -19,7 +19,7 @@ export async function getUsers(
   const {
     limit = 10,
     offset = 0,
-    orderBy = "-created_at",
+    orderBy = '-created_at',
     query,
     emailAddress,
     phoneNumber,
@@ -39,7 +39,7 @@ export async function getUsers(
       username,
       userId,
       organizationId,
-    }),
+    })
   );
 
   if (error) {
@@ -54,12 +54,12 @@ export async function getUsers(
   return successResponse({
     users: users.map((user) => ({
       id: user.id,
-      emailAddress: user.emailAddresses[0]?.emailAddress || "",
-      phoneNumber: user.phoneNumbers[0]?.phoneNumber || "",
-      username: user.username || "",
+      emailAddress: user.emailAddresses[0]?.emailAddress || '',
+      phoneNumber: user.phoneNumbers[0]?.phoneNumber || '',
+      username: user.username || '',
       lastActiveAt: user.lastActiveAt
         ? new Date(user.lastActiveAt).toISOString()
-        : "",
+        : '',
     })),
     totalCount,
   });

@@ -1,8 +1,8 @@
-import { env } from "@/env";
-import { auth, currentUser } from "@repo/auth/server";
-import { secure } from "@repo/security";
-import type { ReactNode } from "react";
-import { PostHogIdentifier } from "@/components/posthog-identifier";
+import { PostHogIdentifier } from '@/components/posthog-identifier';
+import { env } from '@/env';
+import { auth, currentUser } from '@repo/auth/server';
+import { secure } from '@repo/security';
+import type { ReactNode } from 'react';
 
 type AppLayoutProperties = {
   readonly children: ReactNode;
@@ -10,7 +10,7 @@ type AppLayoutProperties = {
 
 export default async function AppLayout({ children }: AppLayoutProperties) {
   if (env.ARCJET_KEY) {
-    await secure(["CATEGORY:PREVIEW"]);
+    await secure(['CATEGORY:PREVIEW']);
   }
 
   const user = await currentUser();

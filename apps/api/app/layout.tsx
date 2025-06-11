@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 type RootLayoutProperties = {
   readonly children: ReactNode;
 };
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: RootLayoutProperties): React.ReactNode {
+}: RootLayoutProperties): ReactNode {
   return (
     <html lang="en">
       <body>{children}</body>

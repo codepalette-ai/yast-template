@@ -1,11 +1,10 @@
-import { auth } from "@repo/auth/server";
-import { database } from "@repo/database";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { Header } from "../../components/header";
+import { auth } from '@repo/auth/server';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { Header } from '../../components/header';
 
-const title = "Acme Inc";
-const description = "My application.";
+const title = 'Acme Inc';
+const description = 'My application.';
 
 export const metadata: Metadata = {
   title,
@@ -21,14 +20,8 @@ export default async function App() {
 
   return (
     <>
-      <Header
-        pages={["Building Your Application"]}
-        page="Data Fetching"
-      ></Header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="grid auto-rows-min gap-4 md:grid-cols-3"></div>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-      </div>
+      <Header pages={['Dashboard']} page="Dashboard" />
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Dashboard Page</div>
     </>
   );
 }
