@@ -28,8 +28,17 @@ import {
   SelectValue,
 } from "@repo/design-system/components/ui/select";
 import { Badge } from "@repo/design-system/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/design-system/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/design-system/components/ui/card";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@repo/design-system/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/design-system/components/ui/card";
 import { Search, Filter, Mail, Phone, Calendar } from "lucide-react";
 import { getUsers } from "@/actions/user.actions";
 import { type GetUsersParams, type User as UserType } from "@/types";
@@ -57,7 +66,11 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export function UsersTable({ initialUsers, initialTotalCount, initialParams }: UsersTableProps) {
+export function UsersTable({
+  initialUsers,
+  initialTotalCount,
+  initialParams,
+}: UsersTableProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isInitialMount = useRef(true);
@@ -65,7 +78,9 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
   const [users, setUsers] = useState<UserType[]>(initialUsers);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [searchQuery, setSearchQuery] = useState(initialParams.query || "");
-  const [orderBy, setOrderBy] = useState(initialParams.orderBy || "-created_at");
+  const [orderBy, setOrderBy] = useState(
+    initialParams.orderBy || "-created_at",
+  );
   const [limit, setLimit] = useState(initialParams.limit || 10);
   const [offset, setOffset] = useState(initialParams.offset || 0);
 
@@ -85,19 +100,25 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
     });
   }, []);
 
-  const updateURL = useCallback((params: GetUsersParams) => {
-    const url = new URL(window.location.href);
-    if (params.query) url.searchParams.set("query", params.query);
-    else url.searchParams.delete("query");
-    if (params.offset) url.searchParams.set("offset", params.offset.toString());
-    else url.searchParams.delete("offset");
-    if (params.limit && params.limit !== 10) url.searchParams.set("limit", params.limit.toString());
-    else url.searchParams.delete("limit");
-    if (params.orderBy && params.orderBy !== "-created_at") url.searchParams.set("orderBy", params.orderBy);
-    else url.searchParams.delete("orderBy");
-    
-    router.replace(url.pathname + url.search, { scroll: false });
-  }, [router]);
+  const updateURL = useCallback(
+    (params: GetUsersParams) => {
+      const url = new URL(window.location.href);
+      if (params.query) url.searchParams.set("query", params.query);
+      else url.searchParams.delete("query");
+      if (params.offset)
+        url.searchParams.set("offset", params.offset.toString());
+      else url.searchParams.delete("offset");
+      if (params.limit && params.limit !== 10)
+        url.searchParams.set("limit", params.limit.toString());
+      else url.searchParams.delete("limit");
+      if (params.orderBy && params.orderBy !== "-created_at")
+        url.searchParams.set("orderBy", params.orderBy);
+      else url.searchParams.delete("orderBy");
+
+      router.replace(url.pathname + url.search, { scroll: false });
+    },
+    [router],
+  );
 
   // Effect to handle debounced search
   useEffect(() => {
@@ -106,15 +127,15 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
       isInitialMount.current = false;
       return;
     }
-    
+
     // Only search if query is empty or has 3+ characters
     if (debouncedSearchQuery === "" || debouncedSearchQuery.length >= 3) {
       setOffset(0); // Reset to first page
-      const params = { 
-        query: debouncedSearchQuery || undefined, 
-        offset: 0, 
-        limit, 
-        orderBy 
+      const params = {
+        query: debouncedSearchQuery || undefined,
+        offset: 0,
+        limit,
+        orderBy,
       };
       updateUsers(params);
       updateURL(params);
@@ -126,14 +147,14 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
   };
 
   const handleOrderChange = (value: string) => {
-    const newOrderBy = value as GetUsersParams['orderBy'];
+    const newOrderBy = value as GetUsersParams["orderBy"];
     setOrderBy(newOrderBy || "-created_at");
     setOffset(0); // Reset to first page
-    const params = { 
-      query: debouncedSearchQuery || undefined, 
-      offset: 0, 
-      limit, 
-      orderBy: newOrderBy 
+    const params = {
+      query: debouncedSearchQuery || undefined,
+      offset: 0,
+      limit,
+      orderBy: newOrderBy,
     };
     updateUsers(params);
     updateURL(params);
@@ -142,11 +163,11 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
     setOffset(0); // Reset to first page
-    const params = { 
-      query: debouncedSearchQuery || undefined, 
-      offset: 0, 
-      limit: newLimit, 
-      orderBy 
+    const params = {
+      query: debouncedSearchQuery || undefined,
+      offset: 0,
+      limit: newLimit,
+      orderBy,
     };
     updateUsers(params);
     updateURL(params);
@@ -155,18 +176,19 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
   const handlePageChange = (newPage: number) => {
     const newOffset = (newPage - 1) * limit;
     setOffset(newOffset);
-    const params = { 
-      query: debouncedSearchQuery || undefined, 
-      offset: newOffset, 
-      limit, 
-      orderBy 
+    const params = {
+      query: debouncedSearchQuery || undefined,
+      offset: newOffset,
+      limit,
+      orderBy,
     };
     updateUsers(params);
     updateURL(params);
   };
 
   const formatDate = (timestamp: number | string) => {
-    const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp);
+    const date =
+      typeof timestamp === "string" ? new Date(timestamp) : new Date(timestamp);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -192,7 +214,7 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
       return user.username;
     }
     if (user.emailAddress) {
-      return user.emailAddress.split('@')[0];
+      return user.emailAddress.split("@")[0];
     }
     return "Unnamed User";
   };
@@ -247,7 +269,12 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
             </Select>
 
             {/* Items per page */}
-            <Select value={limit.toString()} onValueChange={(value: string) => handleLimitChange(Number(value))}>
+            <Select
+              value={limit.toString()}
+              onValueChange={(value: string) =>
+                handleLimitChange(Number(value))
+              }
+            >
               <SelectTrigger className="w-[120px]">
                 <SelectValue />
               </SelectTrigger>
@@ -284,9 +311,12 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                      {searchQuery.length > 0 && searchQuery.length < 3 
-                        ? "Enter at least 3 characters to search" 
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      {searchQuery.length > 0 && searchQuery.length < 3
+                        ? "Enter at least 3 characters to search"
                         : "No users found"}
                     </TableCell>
                   </TableRow>
@@ -296,14 +326,18 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar>
-                            <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
+                            <AvatarFallback>
+                              {getUserInitials(user)}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium">
                               {getUserDisplayName(user)}
                             </div>
                             {user.username && (
-                              <div className="text-sm text-muted-foreground">@{user.username}</div>
+                              <div className="text-sm text-muted-foreground">
+                                @{user.username}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -329,9 +363,13 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
                       </TableCell>
                       <TableCell>
                         {user.lastActiveAt ? (
-                          <div className="text-sm">{formatDate(user.lastActiveAt)}</div>
+                          <div className="text-sm">
+                            {formatDate(user.lastActiveAt)}
+                          </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">Never</span>
+                          <span className="text-sm text-muted-foreground">
+                            Never
+                          </span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -347,7 +385,8 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {offset + 1} to {Math.min(offset + limit, totalCount)} of {totalCount} users
+            Showing {offset + 1} to {Math.min(offset + limit, totalCount)} of{" "}
+            {totalCount} users
           </div>
           <Pagination>
             <PaginationContent>
@@ -362,7 +401,7 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
                   />
                 </PaginationItem>
               )}
-              
+
               {/* Page numbers */}
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
@@ -375,7 +414,7 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
@@ -409,4 +448,4 @@ export function UsersTable({ initialUsers, initialTotalCount, initialParams }: U
       )}
     </div>
   );
-} 
+}

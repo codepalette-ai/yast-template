@@ -15,9 +15,7 @@ import {
   useSidebar,
 } from "@repo/design-system/components/ui/sidebar";
 import { cn } from "@repo/design-system/lib/utils";
-import {
-  UsersIcon,
-} from "lucide-react";
+import { UsersIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -59,7 +57,9 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                 {sidebar.open && (
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold">Admin Panel</span>
-                    <span className="text-xs text-muted-foreground">Dashboard</span>
+                    <span className="text-xs text-muted-foreground">
+                      Dashboard
+                    </span>
                   </div>
                 )}
               </div>
