@@ -24,7 +24,10 @@ export default function RootLayout({
     <html lang="en" className={fonts} suppressHydrationWarning>
       <body>
         <DesignSystemProvider
-          privacyUrl={new URL('/privacy', env.NEXT_PUBLIC_WEB_URL).toString()}
+          privacyUrl={new URL(
+            '/privacy-policy',
+            env.NEXT_PUBLIC_WEB_URL
+          ).toString()}
           termsUrl={new URL('/terms', env.NEXT_PUBLIC_WEB_URL).toString()}
           helpUrl={env.NEXT_PUBLIC_WEB_URL}
         >
