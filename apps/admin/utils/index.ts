@@ -1,1 +1,1 @@
-export * from './actionResponse';
+export * from './action-response';
