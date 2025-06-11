@@ -13,6 +13,12 @@ export default function RootLayout({
 }: RootLayoutProperties): React.ReactNode {
   return (
     <html lang="en" className={fonts} suppressHydrationWarning>
+      {/* <head>
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        ></script>
+      </head> */}
       <body>
         <DesignSystemProvider
           privacyUrl={new URL("/privacy", env.NEXT_PUBLIC_WEB_URL).toString()}
