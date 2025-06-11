@@ -13,18 +13,17 @@ type PostHogProviderProps = {
 export const PostHogProvider = (
   properties: Omit<PostHogProviderProps, "client">,
 ) => {
-  const { NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST } = keys();
-  if (!NEXT_PUBLIC_POSTHOG_KEY || !NEXT_PUBLIC_POSTHOG_HOST) {
-    return null;
-  }
   useEffect(() => {
-    posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
+    const { NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST } = keys();
+    if (NEXT_PUBLIC_POSTHOG_KEY && NEXT_PUBLIC_POSTHOG_HOST) {
+      posthog.init(NEXT_PUBLIC_POSTHOG_KEY, {
       api_host: "/ingest",
       ui_host: NEXT_PUBLIC_POSTHOG_HOST,
       person_profiles: "identified_only",
       capture_pageview: false, // Disable automatic pageview capture, as we capture manually
       capture_pageleave: true, // Overrides the `capture_pageview` setting
     }) as PostHog;
+    }
   }, []);
 
   return <PostHogProviderRaw client={posthog} {...properties} />;
