@@ -8,6 +8,7 @@ import { keys as security } from "@repo/security/keys";
 import { keys as storage } from "@repo/storage/keys";
 import { keys as webhooks } from "@repo/webhooks/keys";
 import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const env = createEnv({
   extends: [
@@ -21,7 +22,11 @@ export const env = createEnv({
     storage(),
     webhooks(),
   ],
-  server: {},
+  server: {
+    CLERK_USER_SECRET_KEY: z.string().min(1).startsWith("sk_"),
+  },
   client: {},
-  runtimeEnv: {},
+  runtimeEnv: {
+    CLERK_USER_SECRET_KEY: process.env.CLERK_USER_SECRET_KEY,
+  },
 });
