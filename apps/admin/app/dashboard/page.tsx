@@ -1,7 +1,7 @@
+import { Header } from '@/components/dashboard-header';
 import { auth } from '@repo/auth/server';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Header } from '../../components/header';
 
 const title = 'Acme Inc';
 const description = 'My application.';

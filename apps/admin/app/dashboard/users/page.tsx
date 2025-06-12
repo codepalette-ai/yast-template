@@ -1,5 +1,5 @@
 import { type GetUsersParams, getUsers } from '@/actions/user.actions';
-import { Header } from '@/components/header';
+import { Header } from '@/components/dashboard-header';
 import { UsersTable } from '@/components/users-table';
 import { Badge } from '@repo/design-system/components/ui/badge';
 import { UserCheck, Users } from 'lucide-react';

@@ -1,3 +1,4 @@
+import { Header } from '@/components/dashboard-header';
 import { auth } from '@repo/auth/server';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -17,5 +18,10 @@ export default async function App() {
     notFound();
   }
 
-  return <> Logged in as {userId}</>;
+  return (
+    <>
+      <Header pages={['Dashboard']} page="Dashboard" />
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Dashboard Page</div>
+    </>
+  );
 }
