@@ -8,16 +8,16 @@
   },
   "dependencies": {
     "@logtail/next": "^0.2.0",
-    "@sentry/nextjs": "^9.28.0",
+    "@sentry/nextjs": "^9.32.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "react": "^19.1.0",
     "server-only": "^0.0.1",
-    "zod": "^3.25.60"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "24.0.0",
-    "@types/react": "19.1.7",
+    "@types/node": "24.0.4",
+    "@types/react": "19.1.8",
     "@types/react-dom": "^19.1.6",
     "typescript": "^5.8.3"
   }

@@ -1,9 +1,9 @@
-import { env } from '@/env';
 import { authMiddleware } from '@repo/auth/middleware';
 import { parseError } from '@repo/observability/error';
 import { secure } from '@repo/security';
 import { noseconeMiddleware, noseconeOptions } from '@repo/security/middleware';
 import { type NextMiddleware, NextResponse } from 'next/server';
+import { env } from '@/env';
 
 export const config = {
   // matcher tells Next.js which routes to run the middleware on. This runs the

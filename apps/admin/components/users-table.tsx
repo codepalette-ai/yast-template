@@ -1,7 +1,5 @@
 'use client';
 
-import { getUsers } from '@/actions/user.actions';
-import type { GetUsersParams, User as UserType } from '@/types';
 import {
   Avatar,
   AvatarFallback,
@@ -40,6 +38,8 @@ import {
 import { Filter, Mail, Phone, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { getUsers } from '@/actions/user.actions';
+import type { GetUsersParams, User as UserType } from '@/types';
 
 interface UsersTableProps {
   initialUsers: UserType[];
@@ -243,10 +243,10 @@ export function UsersTable({
               <div className="relative">
                 <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-muted-foreground" />
                 <Input
+                  className="pl-10"
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Search users (min 3 characters)..."
                   value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10"
                 />
                 {searchQuery.length > 0 && searchQuery.length < 3 && (
                   <p className="mt-1 text-muted-foreground text-xs">
@@ -257,7 +257,7 @@ export function UsersTable({
             </div>
 
             {/* Sort Order */}
-            <Select value={orderBy} onValueChange={handleOrderChange}>
+            <Select onValueChange={handleOrderChange} value={orderBy}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -277,10 +277,10 @@ export function UsersTable({
 
             {/* Items per page */}
             <Select
-              value={limit.toString()}
               onValueChange={(value: string) =>
                 handleLimitChange(Number(value))
               }
+              value={limit.toString()}
             >
               <SelectTrigger className="w-[120px]">
                 <SelectValue />
@@ -319,8 +319,8 @@ export function UsersTable({
                 {users.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
                       className="py-8 text-center text-muted-foreground"
+                      colSpan={4}
                     >
                       {searchQuery.length > 0 && searchQuery.length < 3
                         ? 'Enter at least 3 characters to search'

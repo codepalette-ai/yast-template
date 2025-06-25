@@ -1,8 +1,8 @@
+import { Badge } from '@repo/design-system/components/ui/badge';
+import { UserCheck, Users } from 'lucide-react';
 import { type GetUsersParams, getUsers } from '@/actions/user.actions';
 import { Header } from '@/components/dashboard-header';
 import { UsersTable } from '@/components/users-table';
-import { Badge } from '@repo/design-system/components/ui/badge';
-import { UserCheck, Users } from 'lucide-react';
 
 interface UsersPageProps {
   searchParams: Promise<{
@@ -47,7 +47,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
 
   return (
     <div>
-      <Header pages={['Dashboard', 'Users']} page="Users" />
+      <Header page="Users" pages={['Dashboard', 'Users']} />
       <div className="flex-1 space-y-8 p-8 pt-6">
         {/* Page Header */}
         <div className="flex items-center justify-between space-y-2">
@@ -63,7 +63,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="flex items-center space-x-1">
+            <Badge className="flex items-center space-x-1" variant="outline">
               <UserCheck className="h-3 w-3" />
               <span>{data.totalCount} Total Users</span>
             </Badge>
@@ -72,9 +72,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
 
         {/* Users Table */}
         <UsersTable
-          initialUsers={data.users}
-          initialTotalCount={data.totalCount}
           initialParams={params}
+          initialTotalCount={data.totalCount}
+          initialUsers={data.users}
         />
       </div>
     </div>

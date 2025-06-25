@@ -21,15 +21,15 @@ export default function RootLayout({
   children,
 }: RootLayoutProperties): React.ReactNode {
   return (
-    <html lang="en" className={fonts} suppressHydrationWarning>
+    <html className={fonts} lang="en" suppressHydrationWarning>
       <body>
         <DesignSystemProvider
+          helpUrl={env.NEXT_PUBLIC_WEB_URL}
           privacyUrl={new URL(
             '/privacy-policy',
             env.NEXT_PUBLIC_WEB_URL
           ).toString()}
           termsUrl={new URL('/terms', env.NEXT_PUBLIC_WEB_URL).toString()}
-          helpUrl={env.NEXT_PUBLIC_WEB_URL}
         >
           {children}
         </DesignSystemProvider>

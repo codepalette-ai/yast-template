@@ -47,9 +47,9 @@ export const ContactTemplate = ({
 
 const ExampleContactEmail = () => (
   <ContactTemplate
-    name="Jane Smith"
     email="jane@example.com"
     message="Hello, how do I get started?"
+    name="Jane Smith"
   />
 );
 

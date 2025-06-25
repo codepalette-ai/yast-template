@@ -1,7 +1,7 @@
-import { Header } from '@/components/dashboard-header';
 import { auth } from '@repo/auth/server';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Header } from '@/components/dashboard-header';
 
 const title = 'Acme Inc';
 const description = 'My application.';
@@ -20,7 +20,7 @@ export default async function App() {
 
   return (
     <>
-      <Header pages={['Dashboard']} page="Dashboard" />
+      <Header page="Dashboard" pages={['Dashboard']} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">Dashboard Page</div>
     </>
   );

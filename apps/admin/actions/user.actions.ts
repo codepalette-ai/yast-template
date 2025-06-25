@@ -1,9 +1,9 @@
 'use server';
+import type { User } from '@repo/auth/server';
+import { createClerkClient } from '@repo/auth/server';
 import { env } from '@/env';
 import type { GetUsersParams, User as UserType } from '@/types';
-import { type Result, errorResponse, successResponse, tryCatch } from '@/utils';
-import { createClerkClient } from '@repo/auth/server';
-import type { User } from '@repo/auth/server';
+import { errorResponse, type Result, successResponse, tryCatch } from '@/utils';
 
 // Re-export GetUsersParams for use in other files
 export type { GetUsersParams } from '@/types';

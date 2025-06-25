@@ -4,24 +4,24 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "pnpm run db:init && turbo run dev",
-    "lint": "ultracite lint",
-    "format": "ultracite format",
+    "lint": "ultracite lint ./apps",
+    "format": "ultracite format ./apps",
     "test": "turbo run test",
     "analyze": "turbo run analyze",
     "install:web": "cd apps/web && pnpm install",
     "db:init": "cd packages/database && npx prisma format && npx prisma generate --no-engine",
     "db:migrate": "cd packages/database && npx prisma migrate dev",
     "check-types": "turbo run check-types",
-    "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker && pnpm install",
+    "bump-deps": "npx npm-check-updates --deep -u && pnpm install",
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design-system && pnpm run format"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "ultracite": "4.2.10",
+    "@biomejs/biome": "2.0.5",
+    "ultracite": "5.0.20",
     "turbo": "^2.5.4",
     "typescript": "5.8.3"
   },
-  "packageManager": "pnpm@10.12.1",
+  "packageManager": "pnpm@10.12.3",
   "engines": {
     "node": ">=22"
   }

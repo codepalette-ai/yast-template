@@ -12,7 +12,7 @@ export default function RootLayout({
   children,
 }: RootLayoutProperties): ReactNode {
   return (
-    <html lang="en" className={fonts} suppressHydrationWarning>
+    <html className={fonts} lang="en" suppressHydrationWarning>
       {/* <head>
         <script
           crossOrigin="anonymous"
@@ -21,12 +21,12 @@ export default function RootLayout({
       </head> */}
       <body>
         <DesignSystemProvider
+          helpUrl={env.NEXT_PUBLIC_WEB_URL}
           privacyUrl={new URL(
             '/privacy-policy',
             env.NEXT_PUBLIC_WEB_URL
           ).toString()}
           termsUrl={new URL('/terms', env.NEXT_PUBLIC_WEB_URL).toString()}
-          helpUrl={env.NEXT_PUBLIC_WEB_URL}
         >
           {children}
         </DesignSystemProvider>
