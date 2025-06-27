@@ -17,11 +17,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.5",
-    "ultracite": "5.0.20",
+    "ultracite": "5.0.25",
     "turbo": "^2.5.4",
     "typescript": "5.8.3"
   },
-  "packageManager": "pnpm@10.12.3",
+  "packageManager": "pnpm@10.12.4",
   "engines": {
     "node": ">=22"
   }
